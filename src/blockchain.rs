@@ -36,11 +36,18 @@ impl Blockchain {
 
         self.blocks[self.blocks.len() - 1].hash.clone()
     }
+    /// Check if block is genesis
+    pub fn is_genesis(&self) -> bool {
+        self.blocks.is_empty()
+    }
+
+    /// Make state backup
+    pub fn state_backup(&self) -> HashMap<String, Account> {
+        self.accounts.clone()
+    }
+
     /// Append block
     pub fn append_block(&mut self, block: Block) -> Result<(), String> {
-        // Check if block is first in the chain(genesis)
-        let is_genesis = self.blocks.is_empty();
-
         if block.prev_hash != self.get_last_block_hash() {
             return Err("The new block has to point to the previous block".into());
         }
@@ -50,12 +57,12 @@ impl Blockchain {
         }
 
         // TODO: refactor to something more resource friendly
-        let old_state = self.accounts.clone();
+        let old_state = self.state_backup();
 
         // Execute each transaction and rollback if something went wrong
         for (i, transaction) in block.transactions.iter().enumerate() {
             // Execute the transaction
-            if let Err(err) = transaction.execute(self, &is_genesis) {
+            if let Err(err) = transaction.execute(self, &self.is_genesis()) {
                 // Recover state in case of fail
                 self.accounts = old_state;
 
