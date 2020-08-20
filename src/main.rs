@@ -14,10 +14,14 @@ fn main() {
     let initial_users = vec!["John", "Mereep"];
 
     for user in initial_users {
+        let uniq_num = Transaction::generate_unqnum();
+
+        println!("UNIQ NUMBER: {}", uniq_num);
+
         let create_transaction = Transaction::new(
             user.into(),
             TransactionData::CreateUserAccount(user.into()),
-            0,
+            uniq_num, // 0,
         );
 
         let token_action = Transaction::new(
@@ -26,7 +30,7 @@ fn main() {
                 receiver: user.into(),
                 amount: 10_000,
             },
-            0,
+            uniq_num, // 0,
         );
 
         genesis.add_transaction(create_transaction);
@@ -48,12 +52,30 @@ fn main() {
         },
         0,
     ));
+    // FIXME: do something about dummy 0 in Block::unqnum
+    block2.set_unqnum(324);
 
     res = chain.append_block(block2);
-    println!("Block added: {:?}", res);
+    println!("Block2 added: {:?}", res);
+
+    let mut block3 = Block::new(chain.get_last_block_hash());
+    block3.add_transaction(Transaction::new(
+        "Mereep".into(),
+        TransactionData::TransferTokens {
+            to: "John".into(),
+            amount: 1000,
+        },
+        0,
+    ));
+
+    block3.set_unqnum(95);
+
+    res = chain.append_block(block3);
+    println!("Block3 added: {:?}", res);
+
     println!("Full blockchain printout");
     println!("{:#?}", chain);
-    println!("Blockchain valid: {:?}", chain.check_validity());
+    // println!("Blockchain valid: {:?}", chain.check_validity());
 
     let mut chain_attack = chain.clone();
 

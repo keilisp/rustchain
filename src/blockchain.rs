@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::SystemTime;
 
 use blake2::{Blake2b, Digest};
@@ -144,6 +145,12 @@ impl Block {
         }
     }
 
+    // /// Generate unqnum for block
+    // pub fn generate_unqnum() -> usize {
+    //     static COUNTER: AtomicUsize = AtomicUsize::new(1);
+    //     COUNTER.fetch_add(1, Ordering::Relaxed)
+    // }
+
     /// Changes the unqnum number and updates the hash
     pub fn set_unqnum(&mut self, unqnum: i128) {
         self.unqnum = unqnum;
@@ -199,7 +206,7 @@ impl Block {
 #[derive(Debug, Clone)]
 pub struct Transaction {
     /// Unique number
-    unqnum: u128,
+    unqnum: usize,
 
     /// Accound ID
     from: String,
@@ -215,7 +222,7 @@ pub struct Transaction {
 }
 
 impl Transaction {
-    pub fn new(from: String, transaction_data: TransactionData, unqnum: u128) -> Self {
+    pub fn new(from: String, transaction_data: TransactionData, unqnum: usize) -> Self {
         Transaction {
             from,
             unqnum,
@@ -223,6 +230,12 @@ impl Transaction {
             created_at: SystemTime::now(),
             signature: None,
         }
+    }
+
+    /// Generate unqnum for transition
+    pub fn generate_unqnum() -> usize {
+        static COUNTER: AtomicUsize = AtomicUsize::new(1);
+        COUNTER.fetch_add(1, Ordering::Relaxed)
     }
 
     /// Will change the world state according to the transactions commands
