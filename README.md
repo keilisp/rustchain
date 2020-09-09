@@ -2,4 +2,4 @@
 
 # Description
 
-Basic implementation of blockchain writtein in Rust
+Basic implementation of blockchain written in Rust
